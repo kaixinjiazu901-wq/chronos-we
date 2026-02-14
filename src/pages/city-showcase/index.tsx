@@ -11,9 +11,12 @@ export default function CityShowcasePage() {
   // 计算当地时间
   const calculateLocalTime = (beijingTime: string, offset: number): string => {
     const [h, m] = beijingTime.split(':').map(Number)
-    const totalMinutes = h * 60 + m
-    const offsetMinutes = offset * 60
-    const localMinutes = totalMinutes + offsetMinutes
+
+    // 北京时间是 UTC+8，先转换为 UTC 时间（减去 8 小时）
+    const utcMinutes = h * 60 + m - 8 * 60
+
+    // 再加上目标城市的偏移量
+    const localMinutes = utcMinutes + offset * 60
 
     // 处理跨天
     let normalizedMinutes = localMinutes % (24 * 60)

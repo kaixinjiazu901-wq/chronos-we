@@ -41,20 +41,21 @@ export default function CitySelectPage() {
     return diff
   }
 
-  // 计算匹配时间：城市当前时间应该等于"理想睡眠时间 - (实际睡眠时间 - 当前时间)"
+  // 计算匹配时间：当地城市时间 = 理想睡眠时间 - (实际睡眠时间 - 当前时间)
   const calculateMatchTime = (): string => {
     if (!actualSleepTime || !idealSleepTime || !currentTime) return '--:--'
 
     // 计算距离实际睡眠时间还有多久
     const diffToActual = calculateTimeDiff(currentTime, actualSleepTime)
 
-    // 计算匹配时间（相对于北京时间的偏移）
-    const offsetFromBeijing = calculateTimeDiff(actualSleepTime, idealSleepTime) + diffToActual
+    // 应用公式：理想睡眠时间 - (实际睡眠时间 - 当前时间)
+    // = 理想睡眠时间 - 实际睡眠时间 + 当前时间
+    const matchOffsetFromBeijing = calculateTimeDiff(actualSleepTime, idealSleepTime) + diffToActual
 
-    // 计算目标时间（北京时间 + 偏移）
+    // 计算目标时间
     const now = new Date()
     const totalMinutes = now.getHours() * 60 + now.getMinutes()
-    const targetMinutes = (totalMinutes + offsetFromBeijing * 60 + 24 * 60) % (24 * 60)
+    const targetMinutes = (totalMinutes + matchOffsetFromBeijing * 60 + 24 * 60) % (24 * 60)
 
     const targetHour = Math.floor(targetMinutes / 60)
     const targetMinute = targetMinutes % 60
@@ -62,28 +63,36 @@ export default function CitySelectPage() {
     return `${String(targetHour).padStart(2, '0')}:${String(targetMinute).padStart(2, '0')}`
   }
 
-  // 匹配城市（筛选当前时间等于目标时间的城市）
-  const matchCities = (): City[] => {
+  // 计算目标城市的 UTC 偏移量（需要找到哪个城市当地时间等于目标时间）
+  const calculateTargetOffset = (): number => {
     const targetTime = calculateMatchTime()
-    if (targetTime === '--:--') return []
+    if (targetTime === '--:--') return 0
 
-    // 计算当前北京时间
+    // 当前 UTC 时间（北京时间 - 8 小时）
     const now = new Date()
-    const currentBeijingMinutes = now.getHours() * 60 + now.getMinutes()
+    const utcMinutes = now.getHours() * 60 + now.getMinutes() - 8 * 60
 
-    // 解析目标时间
+    // 目标时间（相对于 UTC）
     const [targetHour, targetMinute] = targetTime.split(':').map(Number)
     const targetMinutes = targetHour * 60 + targetMinute
 
-    // 找到时区偏移量
-    const offsetMinutes = targetMinutes - currentBeijingMinutes
-    let offsetHours = offsetMinutes / 60
+    // UTC 偏移量 = 目标时间 - UTC 时间
+    let offsetHours = (targetMinutes - utcMinutes) / 60
+
+    // 处理跨天情况
     if (offsetHours > 12) offsetHours -= 24
     if (offsetHours < -12) offsetHours += 24
 
-    // 找到时差接近的城市（误差在 2 小时内）
+    return offsetHours
+  }
+
+  // 匹配城市（筛选当地时间为目标时间的城市）
+  const matchCities = (): City[] => {
+    const targetOffset = calculateTargetOffset()
+
+    // 找到 UTC 偏移量接近的城市（误差在 2 小时内）
     return CITIES_DATA.filter(city => {
-      const offsetDiff = Math.abs(city.offset - offsetHours)
+      const offsetDiff = Math.abs(city.offset - targetOffset)
       return offsetDiff <= 2
     })
   }
