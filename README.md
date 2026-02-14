@@ -199,6 +199,48 @@ export default definePageConfig({
 })
 ```
 
+## 部署与发布
+
+### 微信小程序部署
+
+```bash
+# 构建
+pnpm build:weapp
+
+# 上传代码（需要配置 key/ 目录下的密钥）
+pnpm upload:weapp
+
+# 预览
+pnpm preview:weapp
+```
+
+### 配置说明
+
+**src/app.config.ts**（Taro 应用配置）：
+- 跨端配置：pages、window、tabBar 等
+- 严格遵循 TypeScript 类型定义
+
+**project.config.json**（微信小程序项目配置）：
+- 微信特有配置：appid、category、setting 等
+- 用于提交审核和开发者工具设置
+
+**注意**：微信小程序特有字段（如 `category`）必须放在 `project.config.json` 中，不能放在 `src/app.config.ts` 中，否则会导致 TypeScript 类型检查失败。
+
+### 部署修复历史
+
+**2026-02-14 修复**：
+- 问题：TypeScript 类型检查失败，`category` 字段在 AppConfig 类型中不存在
+- 解决：将 `category` 从 `src/app.config.ts` 移至 `project.config.json`
+- 详情：查看 `/DEPLOY_FIX_REPORT.md`
+
+### 文档资源
+
+- **完整修复报告**：`/DEPLOY_FIX_REPORT.md`
+- **修复摘要**：`/FIX_SUMMARY.md`
+- **部署错误修复指南**：`/DEPLOY_FIX_GUIDE.md`
+- **下载指南**：`/DOWNLOAD_GUIDE.md`
+- **Mac 用户指南**：`/MAC_USER_GUIDE.md`
+
 #### 应用配置
 
 ```typescript

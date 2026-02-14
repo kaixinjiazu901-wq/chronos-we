@@ -3,6 +3,7 @@
   "projectname": "Chronos",
   "description": "精神时区切换工具",
   "appid": "touristappid",
+  "category": ["工具", "生活服务"],
   "setting": {
     "urlCheck": true,
     "es6": false,

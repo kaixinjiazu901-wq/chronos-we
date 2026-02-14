@@ -89,6 +89,30 @@
             color: #94a3b8;
         }
 
+        .update-log {
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .update-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #a5b4fc;
+            margin-bottom: 4px;
+        }
+
+        .update-content {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .update-content strong {
+            color: #a5b4fc;
+        }
+
         .download-button {
             width: 100%;
             padding: 14px 24px;
@@ -209,6 +233,14 @@
                 <div class="file-details">
                     <div class="file-name">chronos-dist.tar.gz</div>
                     <div class="file-size">85 KB</div>
+                </div>
+            </div>
+            <div class="update-log">
+                <div class="update-title">🔧 最新修复 (2026-02-14)</div>
+                <div class="update-content">
+                    <strong>修复问题</strong>：TypeScript 类型检查失败<br>
+                    <strong>错误</strong>：category 字段在 AppConfig 类型中不存在<br>
+                    <strong>解决方案</strong>：将 category 从 app.config.ts 移至 project.config.json
                 </div>
             </div>
             <a href="chronos-dist.tar.gz" class="download-button">

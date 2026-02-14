@@ -12,6 +12,5 @@ export default defineAppConfig({
     navigationBarTitleText: 'Chronos',
     navigationBarTextStyle: 'white',
     backgroundColor: '#020617'
-  },
-  category: ['工具', '生活服务']
+  }
 })
