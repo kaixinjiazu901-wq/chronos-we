@@ -24,37 +24,30 @@ export default function CitySelectPage() {
     return () => clearInterval(interval)
   }, [])
 
-  // 计算时差（以小时为单位）
-  const calculateTimeDiff = (time1: string, time2: string): number => {
-    const [h1, m1] = time1.split(':').map(Number)
-    const [h2, m2] = time2.split(':').map(Number)
-
-    const minutes1 = h1 * 60 + m1
-    const minutes2 = h2 * 60 + m2
-
-    let diff = (minutes2 - minutes1) / 60
-
-    // 处理跨天情况
-    if (diff > 12) diff -= 24
-    if (diff < -12) diff += 24
-
-    return diff
-  }
-
-  // 计算匹配时间：当地城市时间 = 理想睡眠时间 - (实际睡眠时间 - 当前时间)
+  // 计算匹配时间：目标时间 = 理想睡眠时间 - (当前时间到实际睡眠时间的时长)
   const calculateMatchTime = (): string => {
     if (!actualSleepTime || !idealSleepTime || !currentTime) return '--:--'
 
-    // 计算距离实际睡眠时间还有多久
-    const diffToActual = calculateTimeDiff(currentTime, actualSleepTime)
-
-    // 应用公式：理想睡眠时间 - (实际睡眠时间 - 当前时间)
-    const matchOffsetFromBeijing = calculateTimeDiff(actualSleepTime, idealSleepTime) + diffToActual
-
-    // 计算目标时间
     const now = new Date()
-    const totalMinutes = now.getHours() * 60 + now.getMinutes()
-    const targetMinutes = (totalMinutes + matchOffsetFromBeijing * 60 + 24 * 60) % (24 * 60)
+    const currentMinutes = now.getHours() * 60 + now.getMinutes()
+
+    const [idealH, idealM] = idealSleepTime.split(':').map(Number)
+    const [actualH, actualM] = actualSleepTime.split(':').map(Number)
+
+    const idealMinutes = idealH * 60 + idealM
+    const actualMinutes = actualH * 60 + actualM
+
+    // 计算从当前时间到实际睡眠时间的时长（考虑跨日期）
+    let durationToActualSleep = actualMinutes - currentMinutes
+    if (durationToActualSleep <= 0) {
+      durationToActualSleep += 24 * 60 // 跨越午夜，加24小时
+    }
+
+    // 目标时间 = 理想睡眠时间 - 时长
+    let targetMinutes = idealMinutes - durationToActualSleep
+    if (targetMinutes < 0) {
+      targetMinutes += 24 * 60 // 跨越午夜，加24小时
+    }
 
     const targetHour = Math.floor(targetMinutes / 60)
     const targetMinute = targetMinutes % 60
