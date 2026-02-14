@@ -1,10 +1,46 @@
 import { View, Text, Picker } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { useChronosStore } from '@/stores/chronos'
+import { useState } from 'react'
 import './index.css'
 
 export default function IndexPage() {
   const { actualSleepTime, idealSleepTime, setActualSleepTime, setIdealSleepTime, setSelectedCity } = useChronosStore()
+
+  // 实际睡眠时间的选择值
+  const [actualHourIndex, setActualHourIndex] = useState(2)
+  const [actualMinuteIndex, setActualMinuteIndex] = useState(0)
+
+  // 理想睡眠时间的选择值
+  const [idealHourIndex, setIdealHourIndex] = useState(23)
+  const [idealMinuteIndex, setIdealMinuteIndex] = useState(0)
+
+  // 小时选项（0-23）
+  const hourOptions = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
+
+  // 分钟选项（0-59，每15分钟）
+  const minuteOptions = Array.from({ length: 4 }, (_, i) => String(i * 15).padStart(2, '0'))
+
+  // 将索引转换为时间字符串
+  const formatTime = (hourIndex: number, minuteIndex: number): string => {
+    return `${hourOptions[hourIndex]}:${minuteOptions[minuteIndex]}`
+  }
+
+  // 实际睡眠时间选择器
+  const handleActualTimeChange = (e: any) => {
+    const [hourIdx, minuteIdx] = e.detail.value
+    setActualHourIndex(hourIdx)
+    setActualMinuteIndex(minuteIdx)
+    setActualSleepTime(formatTime(hourIdx, minuteIdx))
+  }
+
+  // 理想睡眠时间选择器
+  const handleIdealTimeChange = (e: any) => {
+    const [hourIdx, minuteIdx] = e.detail.value
+    setIdealHourIndex(hourIdx)
+    setIdealMinuteIndex(minuteIdx)
+    setIdealSleepTime(formatTime(hourIdx, minuteIdx))
+  }
 
   // 页面加载时检查是否有保存的城市
   useLoad(() => {
@@ -17,37 +53,24 @@ export default function IndexPage() {
       setSelectedCity(savedCity)
       setActualSleepTime(savedActualTime)
       setIdealSleepTime(savedIdealTime)
+
+      // 解析保存的时间，设置选择器的索引
+      const [actualH, actualM] = savedActualTime.split(':').map(Number)
+      const [idealH, idealM] = savedIdealTime.split(':').map(Number)
+
+      setActualHourIndex(actualH)
+      setActualMinuteIndex(Math.floor(actualM / 15))
+      setIdealHourIndex(idealH)
+      setIdealMinuteIndex(Math.floor(idealM / 15))
+
       // 直接跳转到城市展示页面
       Taro.redirectTo({ url: '/pages/city-showcase/index' })
+    } else {
+      // 没有保存数据，设置默认值
+      setActualSleepTime('02:00')
+      setIdealSleepTime('23:00')
     }
   })
-
-  // 生成时间选项（00:00 - 23:45，每15分钟一个选项）
-  const generateTimeOptions = (): string[] => {
-    const options: string[] = []
-    for (let h = 0; h < 24; h++) {
-      for (let m = 0; m < 60; m += 15) {
-        const hour = String(h).padStart(2, '0')
-        const minute = String(m).padStart(2, '0')
-        options.push(`${hour}:${minute}`)
-      }
-    }
-    return options
-  }
-
-  const timeOptions = generateTimeOptions()
-
-  // 实际睡眠时间选择器
-  const handleActualTimeChange = (e: any) => {
-    const selectedTime = timeOptions[e.detail.value]
-    setActualSleepTime(selectedTime)
-  }
-
-  // 理想睡眠时间选择器
-  const handleIdealTimeChange = (e: any) => {
-    const selectedTime = timeOptions[e.detail.value]
-    setIdealSleepTime(selectedTime)
-  }
 
   // 开始时光之旅
   const handleStartJourney = () => {
@@ -89,8 +112,9 @@ export default function IndexPage() {
             1. 你通常在什么时候睡？
           </Text>
           <Picker
-            mode="selector"
-            range={timeOptions}
+            mode="multiSelector"
+            range={[hourOptions, minuteOptions]}
+            value={[actualHourIndex, actualMinuteIndex]}
             onChange={handleActualTimeChange}
           >
             <View className="bg-slate-900/80 border border-slate-700 rounded-2xl px-5 py-4 active:bg-slate-800">
@@ -115,8 +139,9 @@ export default function IndexPage() {
             2. 你觉得应该在什么时候睡？
           </Text>
           <Picker
-            mode="selector"
-            range={timeOptions}
+            mode="multiSelector"
+            range={[hourOptions, minuteOptions]}
+            value={[idealHourIndex, idealMinuteIndex]}
             onChange={handleIdealTimeChange}
           >
             <View className="bg-slate-900/80 border border-slate-700 rounded-2xl px-5 py-4 active:bg-slate-800">
