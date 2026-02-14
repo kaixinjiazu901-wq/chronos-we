@@ -85,7 +85,7 @@ export default function CitySelectPage() {
 
     return CITIES_DATA.filter(city => {
       const offsetDiff = Math.abs(city.offset - targetOffset)
-      return offsetDiff <= 2
+      return offsetDiff <= 20 / 60  // 20 分钟以内
     })
   }
 
