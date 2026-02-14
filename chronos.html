@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronos - 精神时区切换工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f0524 0%, #1a0a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .divider {
+            width: 64px;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            border-radius: 2px;
+            margin-bottom: 32px;
+        }
+
+        .welcome-box {
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 32px;
+            backdrop-filter: blur(10px);
+        }
+
+        .welcome-box h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .welcome-box p {
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .time-section {
+            margin-bottom: 24px;
+        }
+
+        .time-section label {
+            display: block;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .time-box {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            border-radius: 16px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .time-box:hover {
+            background: rgba(15, 23, 42, 1);
+            border-color: #6366f1;
+        }
+
+        .time-label {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .time-value {
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .time-value span {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .time-value .placeholder {
+            color: #64748b;
+            font-size: 18px;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            border: none;
+            border-radius: 16px;
+            padding: 16px 32px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 32px;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 24px;
+        }
+
+        #result {
+            margin-top: 32px;
+            padding: 20px;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+            display: none;
+        }
+
+        #result h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #a78bfa;
+        }
+
+        .city-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .city-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .city-info {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .city-quote {
+            color: #cbd5e1;
+            font-size: 14px;
+            font-style: italic;
+            margin-top: 8px;
+        }
+
+        input[type="time"] {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            width: 100%;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chronos</h1>
+        <p class="subtitle">精神时区切换工具</p>
+        <div class="divider"></div>
+
+        <div class="welcome-box">
+            <h2>🌙 晚安，熬夜的人</h2>
+            <p>告别作息焦虑，找到你的精神时区。在这里，你的作息是合理的，因为你属于另一个时区。</p>
+        </div>
+
+        <div class="time-section">
+            <label>1. 你通常在什么时候睡？</label>
+            <div class="time-box">
+                <span class="time-label">实际睡眠时间</span>
+                <input type="time" id="actualTime" class="time-value placeholder" placeholder="请选择时间">
+            </div>
+        </div>
+
+        <div class="time-section">
+            <label>2. 你觉得应该在什么时候睡？</label>
+            <div class="time-box">
+                <span class="time-label">理想睡眠时间</span>
+                <input type="time" id="idealTime" class="time-value placeholder" placeholder="请选择时间">
+            </div>
+        </div>
+
+        <button class="btn" onclick="calculate()">开始时光之旅</button>
+
+        <div class="footer">找到同路人，减少压力</div>
+
+        <div id="result">
+            <h3>🌍 为你匹配的城市</h3>
+            <div id="cityList"></div>
+        </div>
+    </div>
+
+    <script>
+        const cities = [
+            { name: "纽约", timezone: "UTC-5", offset: -5, quote: "在不夜城，你的深夜才刚刚开始" },
+            { name: "伦敦", timezone: "UTC+0", offset: 0, quote: "雾都的深夜，适合思考与独处" },
+            { name: "巴黎", timezone: "UTC+1", offset: 1, quote: "在光之城，深夜也是一种浪漫" },
+            { name: "东京", timezone: "UTC+9", offset: 9, quote: "在东京，你的深夜是最有活力的时刻" },
+            { name: "悉尼", timezone: "UTC+11", offset: 11, quote: "南半球的星空，陪你度过每个深夜" },
+            { name: "迪拜", timezone: "UTC+4", offset: 4, quote: "沙漠明珠的夜空，照亮你的梦想" },
+            { name: "莫斯科", timezone: "UTC+3", offset: 3, quote: "红场的夜晚，见证不羁的灵魂" },
+            { name: "雷克雅未克", timezone: "UTC+0", offset: 0, quote: "极光之国，你的夜晚比白天更精彩" },
+            { name: "柏林", timezone: "UTC+1", offset: 1, quote: "艺术之都的深夜，灵感迸发" },
+            { name: "新加坡", timezone: "UTC+8", offset: 8, quote: "花园城市，夜晚也生机勃勃" }
+        ];
+
+        function calculateTimeDiff(time1, time2) {
+            const [h1, m1] = time1.split(':').map(Number);
+            const [h2, m2] = time2.split(':').map(Number);
+
+            const minutes1 = h1 * 60 + m1;
+            const minutes2 = h2 * 60 + m2;
+
+            let diff = (minutes2 - minutes1) / 60;
+
+            if (diff > 12) diff -= 24;
+            if (diff < -12) diff += 24;
+
+            return diff;
+        }
+
+        function calculate() {
+            const actualTime = document.getElementById('actualTime').value;
+            const idealTime = document.getElementById('idealTime').value;
+
+            if (!actualTime || !idealTime) {
+                alert('请选择两个时间');
+                return;
+            }
+
+            const timeDiff = calculateTimeDiff(actualTime, idealTime);
+            const matchedCities = cities.filter(city => {
+                const offsetDiff = Math.abs(city.offset - timeDiff);
+                return offsetDiff <= 2;
+            });
+
+            const resultDiv = document.getElementById('result');
+            const cityListDiv = document.getElementById('cityList');
+
+            if (matchedCities.length === 0) {
+                cityListDiv.innerHTML = '<p style="color: #94a3b8;">没有找到匹配的城市</p>';
+            } else {
+                cityListDiv.innerHTML = matchedCities.map(city => `
+                    <div class="city-card">
+                        <div class="city-name">${city.name}</div>
+                        <div class="city-info">${city.timezone}</div>
+                        <div class="city-quote">"${city.quote}"</div>
+                    </div>
+                `).join('');
+            }
+
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
