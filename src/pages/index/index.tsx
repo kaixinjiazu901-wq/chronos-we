@@ -8,22 +8,27 @@ export default function IndexPage() {
   const { actualSleepTime, idealSleepTime, setActualSleepTime, setIdealSleepTime, setSelectedCity } = useChronosStore()
 
   // 实际睡眠时间的选择值
-  const [actualHourIndex, setActualHourIndex] = useState(2)
+  const [actualHourIndex, setActualHourIndex] = useState(2 + 24)  // 第二组的 02:00
   const [actualMinuteIndex, setActualMinuteIndex] = useState(0)
 
   // 理想睡眠时间的选择值
-  const [idealHourIndex, setIdealHourIndex] = useState(23)
+  const [idealHourIndex, setIdealHourIndex] = useState(23 + 24)  // 第二组的 23:00
   const [idealMinuteIndex, setIdealMinuteIndex] = useState(0)
 
-  // 小时选项（0-23）
-  const hourOptions = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
+  // 小时选项（扩展为3组，实现循环滚动效果）
+  const hourOptions = [
+    ...Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')),
+    ...Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')),
+    ...Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
+  ]
 
   // 分钟选项（0-59，每15分钟）
   const minuteOptions = Array.from({ length: 4 }, (_, i) => String(i * 15).padStart(2, '0'))
 
-  // 将索引转换为时间字符串
+  // 将索引转换为时间字符串（取模24，因为小时选项是重复的）
   const formatTime = (hourIndex: number, minuteIndex: number): string => {
-    return `${hourOptions[hourIndex]}:${minuteOptions[minuteIndex]}`
+    const hour = hourOptions[hourIndex % 24]
+    return `${hour}:${minuteOptions[minuteIndex]}`
   }
 
   // 实际睡眠时间选择器
@@ -58,15 +63,16 @@ export default function IndexPage() {
       const [actualH, actualM] = savedActualTime.split(':').map(Number)
       const [idealH, idealM] = savedIdealTime.split(':').map(Number)
 
-      setActualHourIndex(actualH)
+      // 将小时映射到第二组（索引24-47），实现循环效果
+      setActualHourIndex(actualH + 24)
       setActualMinuteIndex(Math.floor(actualM / 15))
-      setIdealHourIndex(idealH)
+      setIdealHourIndex(idealH + 24)
       setIdealMinuteIndex(Math.floor(idealM / 15))
 
       // 直接跳转到城市展示页面
       Taro.redirectTo({ url: '/pages/city-showcase/index' })
     } else {
-      // 没有保存数据，设置默认值
+      // 没有保存数据，设置默认值（使用第二组的索引）
       setActualSleepTime('02:00')
       setIdealSleepTime('23:00')
     }
