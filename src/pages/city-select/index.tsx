@@ -49,7 +49,6 @@ export default function CitySelectPage() {
     const diffToActual = calculateTimeDiff(currentTime, actualSleepTime)
 
     // 应用公式：理想睡眠时间 - (实际睡眠时间 - 当前时间)
-    // = 理想睡眠时间 - 实际睡眠时间 + 当前时间
     const matchOffsetFromBeijing = calculateTimeDiff(actualSleepTime, idealSleepTime) + diffToActual
 
     // 计算目标时间
@@ -63,23 +62,17 @@ export default function CitySelectPage() {
     return `${String(targetHour).padStart(2, '0')}:${String(targetMinute).padStart(2, '0')}`
   }
 
-  // 计算目标城市的 UTC 偏移量（需要找到哪个城市当地时间等于目标时间）
+  // 计算目标城市的 UTC 偏移量
   const calculateTargetOffset = (): number => {
     const targetTime = calculateMatchTime()
     if (targetTime === '--:--') return 0
 
-    // 当前 UTC 时间（北京时间 - 8 小时）
     const now = new Date()
     const utcMinutes = now.getHours() * 60 + now.getMinutes() - 8 * 60
-
-    // 目标时间（相对于 UTC）
     const [targetHour, targetMinute] = targetTime.split(':').map(Number)
     const targetMinutes = targetHour * 60 + targetMinute
-
-    // UTC 偏移量 = 目标时间 - UTC 时间
     let offsetHours = (targetMinutes - utcMinutes) / 60
 
-    // 处理跨天情况
     if (offsetHours > 12) offsetHours -= 24
     if (offsetHours < -12) offsetHours += 24
 
@@ -90,7 +83,6 @@ export default function CitySelectPage() {
   const matchCities = (): City[] => {
     const targetOffset = calculateTargetOffset()
 
-    // 找到 UTC 偏移量接近的城市（误差在 2 小时内）
     return CITIES_DATA.filter(city => {
       const offsetDiff = Math.abs(city.offset - targetOffset)
       return offsetDiff <= 2
@@ -115,32 +107,16 @@ export default function CitySelectPage() {
       <View className="mb-6">
         <Text className="text-white text-3xl font-bold block">找到精神时区</Text>
         <Text className="text-slate-400 text-base mt-2 block">
-          筛选出当地时间为以下时间的城市
+          为你推荐以下城市
         </Text>
       </View>
 
-      {/* 时间计算说明 */}
-      <View className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 mb-6">
-        <Text className="text-white text-base font-semibold block">计算过程</Text>
-        <View className="mt-3 space-y-2">
-          <Text className="text-slate-300 text-sm block">
-            当前时间：{currentTime}
-          </Text>
-          <Text className="text-slate-300 text-sm block">
-            实际睡眠时间：{actualSleepTime}
-          </Text>
-          <Text className="text-slate-300 text-sm block">
-            理想睡眠时间：{idealSleepTime}
-          </Text>
-          <View className="border-t border-slate-700 pt-2 mt-2">
-            <Text className="text-indigo-400 text-sm block">
-              当地城市时间 = 理想睡眠时间 - (实际睡眠时间 - 当前时间)
-            </Text>
-            <Text className="text-white text-xl font-bold mt-2 block">
-              {matchTime}
-            </Text>
-          </View>
-        </View>
+      {/* 目标时间 */}
+      <View className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 backdrop-blur-lg border border-indigo-500/30 rounded-2xl p-6 mb-6 text-center">
+        <Text className="text-slate-400 text-sm block">此时此刻，你的精神时区时间是</Text>
+        <Text className="text-white text-5xl font-bold tracking-wider mt-2 block">
+          {matchTime}
+        </Text>
       </View>
 
       {/* 城市列表 */}
