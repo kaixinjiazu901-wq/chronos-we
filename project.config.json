@@ -2,7 +2,7 @@
   "miniprogramRoot": "./dist",
   "projectname": "Chronos",
   "description": "精神时区切换工具",
-  "appid": "gh_0761xxx",
+  "appid": "touristappid",
   "setting": {
     "urlCheck": true,
     "es6": false,
