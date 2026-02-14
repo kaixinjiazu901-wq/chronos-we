@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronos 小程序代码下载（已修复）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f0524 0%, #1a0a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .divider {
+            width: 64px;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            border-radius: 2px;
+            margin-bottom: 32px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .download-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 16px;
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .file-size {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .update-log {
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .update-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #34d399;
+            margin-bottom: 4px;
+        }
+
+        .update-content {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .update-content strong {
+            color: #34d399;
+        }
+
+        .download-button {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .download-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .download-button:active {
+            transform: translateY(0);
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .instructions h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .step-description {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .step-description code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .file-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .file-icon {
+                margin-right: 0;
+                margin-bottom: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Chronos 小程序代码</h1>
+        <p class="subtitle">精神时区切换工具 - 已修复 TypeScript 类型检查错误</p>
+        <div class="divider"></div>
+
+        <div class="status-badge">✅ 已修复并验证通过</div>
+
+        <div class="download-card">
+            <div class="file-info">
+                <div class="file-icon">📦</div>
+                <div class="file-details">
+                    <div class="file-name">chronos-dist.tar.gz</div>
+                    <div class="file-size">85 KB</div>
+                </div>
+            </div>
+            <div class="update-log">
+                <div class="update-title">🔧 修复内容（2026-02-14 16:04）</div>
+                <div class="update-content">
+                    <strong>问题</strong>：TypeScript 类型检查失败<br>
+                    <strong>修复</strong>：将 category 字段从 app.config.ts 移至 project.config.json<br>
+                    <strong>验证</strong>：pnpm tsc ✅ | pnpm build ✅
+                </div>
+            </div>
+            <a href="chronos-dist.tar.gz" class="download-button">
+                ⬇️ 立即下载
+            </a>
+        </div>
+
+        <div class="instructions">
+            <h2>📋 下载后使用说明</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-title">解压文件</div>
+                    <div class="step-description">
+                        下载完成后，在终端中执行：<br>
+                        <code>tar -xzf chronos-dist.tar.gz</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-title">打开微信开发者工具</div>
+                    <div class="step-description">
+                        如果还没有安装，访问：<br>
+                        <code>https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-title">导入项目</div>
+                    <div class="step-description">
+                        打开微信开发者工具，用微信扫码登录<br>
+                        点击"+"号 → 选择 <code>dist</code> 文件夹<br>
+                        AppID：wx73f70f8c440f8ae3<br>
+                        项目名称：Chronos
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <div class="step-title">上传代码</div>
+                    <div class="step-description">
+                        确认小程序运行正常后<br>
+                        点击"上传"按钮<br>
+                        填写版本号：1.0.2<br>
+                        填写项目备注：修复 TypeScript 类型检查错误
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <div class="step-title">提交审核</div>
+                    <div class="step-description">
+                        在微信小程序后台<br>
+                        点击"管理" → "版本管理"<br>
+                        找到刚上传的版本<br>
+                        点击"提交审核"<br>
+                        选择类目：工具 → 生活服务
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>需要帮助？查看详细文档：<code>/REDEPLOY_GUIDE.md</code></p>
+        </div>
+    </div>
+</body>
+</html>
