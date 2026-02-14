@@ -7,20 +7,18 @@ import './index.css'
 export default function IndexPage() {
   const { actualSleepTime, idealSleepTime, setActualSleepTime, setIdealSleepTime, setSelectedCity } = useChronosStore()
 
-  // 实际睡眠时间的选择值
-  const [actualHourIndex, setActualHourIndex] = useState(2 + 24)  // 第二组的 02:00
+  // 实际睡眠时间的选择值（默认定位到中间组）
+  const [actualHourIndex, setActualHourIndex] = useState(2 + 24)  // 中间组的 02:00
   const [actualMinuteIndex, setActualMinuteIndex] = useState(0)
 
   // 理想睡眠时间的选择值
-  const [idealHourIndex, setIdealHourIndex] = useState(23 + 24)  // 第二组的 23:00
+  const [idealHourIndex, setIdealHourIndex] = useState(23 + 24)  // 中间组的 23:00
   const [idealMinuteIndex, setIdealMinuteIndex] = useState(0)
 
-  // 小时选项（扩展为3组，实现循环滚动效果）
-  const hourOptions = [
-    ...Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')),
-    ...Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')),
-    ...Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
-  ]
+  // 小时选项（0-23，重复3组以实现循环滚动效果）
+  const hourOptions = Array.from({ length: 3 }, () =>
+    Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
+  ).flat()
 
   // 分钟选项（0-59，每15分钟）
   const minuteOptions = Array.from({ length: 4 }, (_, i) => String(i * 15).padStart(2, '0'))
@@ -63,7 +61,7 @@ export default function IndexPage() {
       const [actualH, actualM] = savedActualTime.split(':').map(Number)
       const [idealH, idealM] = savedIdealTime.split(':').map(Number)
 
-      // 将小时映射到第二组（索引24-47），实现循环效果
+      // 将小时映射到中间组（索引24-47），实现循环效果
       setActualHourIndex(actualH + 24)
       setActualMinuteIndex(Math.floor(actualM / 15))
       setIdealHourIndex(idealH + 24)
