@@ -68,7 +68,7 @@ export default function IndexPage() {
       <View className="mb-8">
         <Text className="text-white text-4xl font-bold block">Chronos</Text>
         <Text className="text-slate-400 text-base mt-2 block">
-          精神时区切换工具
+          精神时区切换
         </Text>
         <View className="w-16 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 mt-4 rounded-full" />
       </View>
