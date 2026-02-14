@@ -130,6 +130,13 @@ export default function CityShowcasePage() {
         <View
           className="bg-slate-800/80 border border-slate-700 rounded-2xl px-6 py-4 text-center"
           onClick={() => {
+            // 清除本地存储
+            Taro.removeStorageSync('selectedCity')
+            Taro.removeStorageSync('actualSleepTime')
+            Taro.removeStorageSync('idealSleepTime')
+            // 重置状态
+            useChronosStore.getState().reset()
+            // 跳转到首页
             Taro.redirectTo({ url: '/pages/index/index' })
           }}
         >

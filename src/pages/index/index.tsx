@@ -1,10 +1,26 @@
 import { View, Text, Picker } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import Taro, { useLoad } from '@tarojs/taro'
 import { useChronosStore } from '@/stores/chronos'
 import './index.css'
 
 export default function IndexPage() {
-  const { actualSleepTime, idealSleepTime, setActualSleepTime, setIdealSleepTime } = useChronosStore()
+  const { actualSleepTime, idealSleepTime, setActualSleepTime, setIdealSleepTime, setSelectedCity } = useChronosStore()
+
+  // 页面加载时检查是否有保存的城市
+  useLoad(() => {
+    const savedCity = Taro.getStorageSync('selectedCity')
+    const savedActualTime = Taro.getStorageSync('actualSleepTime')
+    const savedIdealTime = Taro.getStorageSync('idealSleepTime')
+
+    if (savedCity && savedActualTime && savedIdealTime) {
+      // 恢复保存的数据
+      setSelectedCity(savedCity)
+      setActualSleepTime(savedActualTime)
+      setIdealSleepTime(savedIdealTime)
+      // 直接跳转到城市展示页面
+      Taro.redirectTo({ url: '/pages/city-showcase/index' })
+    }
+  })
 
   // 生成时间选项（00:00 - 23:45，每15分钟一个选项）
   const generateTimeOptions = (): string[] => {

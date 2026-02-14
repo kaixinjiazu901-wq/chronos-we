@@ -37,6 +37,10 @@ export default function CitySelectPage() {
 
   const handleCitySelect = (city: City) => {
     setSelectedCity(city)
+    // 保存到本地存储
+    Taro.setStorageSync('selectedCity', city)
+    Taro.setStorageSync('actualSleepTime', actualSleepTime)
+    Taro.setStorageSync('idealSleepTime', idealSleepTime)
     Taro.redirectTo({ url: '/pages/time-travel/index' })
   }
 
