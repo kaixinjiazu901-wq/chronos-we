@@ -88,23 +88,23 @@ export default function IndexPage() {
           <Text className="text-white text-base font-semibold mb-3 block">
             1. 你通常在什么时候睡？
           </Text>
-          <View className="bg-slate-900/80 border border-slate-700 rounded-2xl px-5 py-4">
-            <Text className="text-slate-400 text-xs mb-2 block">实际睡眠时间</Text>
-            {actualSleepTime ? (
-              <Text className="text-white text-3xl font-bold block">
-                {actualSleepTime}
-              </Text>
-            ) : (
-              <Text className="text-slate-500 text-lg block">请选择时间</Text>
-            )}
-          </View>
           <Picker
             mode="selector"
             range={timeOptions}
             onChange={handleActualTimeChange}
           >
-            <View className="mt-3 text-center">
-              <Text className="text-indigo-400 text-sm block">点击选择时间 →</Text>
+            <View className="bg-slate-900/80 border border-slate-700 rounded-2xl px-5 py-4 active:bg-slate-800">
+              <Text className="text-slate-400 text-xs mb-2 block">实际睡眠时间</Text>
+              <View className="flex flex-row items-center justify-between">
+                {actualSleepTime ? (
+                  <Text className="text-white text-3xl font-bold block">
+                    {actualSleepTime}
+                  </Text>
+                ) : (
+                  <Text className="text-slate-500 text-lg block">请选择时间</Text>
+                )}
+                <Text className="text-indigo-400 text-xl block">→</Text>
+              </View>
             </View>
           </Picker>
         </View>
@@ -114,23 +114,23 @@ export default function IndexPage() {
           <Text className="text-white text-base font-semibold mb-3 block">
             2. 你觉得应该在什么时候睡？
           </Text>
-          <View className="bg-slate-900/80 border border-slate-700 rounded-2xl px-5 py-4">
-            <Text className="text-slate-400 text-xs mb-2 block">理想睡眠时间</Text>
-            {idealSleepTime ? (
-              <Text className="text-white text-3xl font-bold block">
-                {idealSleepTime}
-              </Text>
-            ) : (
-              <Text className="text-slate-500 text-lg block">请选择时间</Text>
-            )}
-          </View>
           <Picker
             mode="selector"
             range={timeOptions}
             onChange={handleIdealTimeChange}
           >
-            <View className="mt-3 text-center">
-              <Text className="text-indigo-400 text-sm block">点击选择时间 →</Text>
+            <View className="bg-slate-900/80 border border-slate-700 rounded-2xl px-5 py-4 active:bg-slate-800">
+              <Text className="text-slate-400 text-xs mb-2 block">理想睡眠时间</Text>
+              <View className="flex flex-row items-center justify-between">
+                {idealSleepTime ? (
+                  <Text className="text-white text-3xl font-bold block">
+                    {idealSleepTime}
+                  </Text>
+                ) : (
+                  <Text className="text-slate-500 text-lg block">请选择时间</Text>
+                )}
+                <Text className="text-indigo-400 text-xl block">→</Text>
+              </View>
             </View>
           </Picker>
         </View>
