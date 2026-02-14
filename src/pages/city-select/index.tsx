@@ -2,10 +2,27 @@ import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useChronosStore, type City } from '@/stores/chronos'
 import { CITIES_DATA } from '@/data/cities'
+import { useState, useEffect } from 'react'
 import './index.css'
 
 export default function CitySelectPage() {
   const { actualSleepTime, idealSleepTime, setSelectedCity } = useChronosStore()
+  const [currentTime, setCurrentTime] = useState<string>('')
+
+  // 获取当前时间
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date()
+      const hours = String(now.getHours()).padStart(2, '0')
+      const minutes = String(now.getMinutes()).padStart(2, '0')
+      setCurrentTime(`${hours}:${minutes}`)
+    }
+
+    updateTime()
+    const interval = setInterval(updateTime, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   // 计算时差（以小时为单位）
   const calculateTimeDiff = (time1: string, time2: string): number => {
@@ -24,13 +41,26 @@ export default function CitySelectPage() {
     return diff
   }
 
-  // 匹配城市（根据时差）
+  // 计算匹配同路人的时间（新公式：理想睡眠时间 - (实际睡眠时间 - 当前时间)）
+  const calculateMatchTime = (): number => {
+    if (!actualSleepTime || !idealSleepTime || !currentTime) return 0
+
+    // 计算距离实际睡眠时间还有多久
+    const diffToActual = calculateTimeDiff(currentTime, actualSleepTime)
+
+    // 计算匹配同路人的时间
+    const matchTime = calculateTimeDiff(actualSleepTime, idealSleepTime) + diffToActual
+
+    return matchTime
+  }
+
+  // 匹配城市（根据计算出的匹配时间）
   const matchCities = (): City[] => {
-    const timeDiff = calculateTimeDiff(actualSleepTime, idealSleepTime)
+    const matchTime = calculateMatchTime()
 
     // 找到时差接近的城市（误差在 2 小时内）
     return CITIES_DATA.filter(city => {
-      const offsetDiff = Math.abs(city.offset - timeDiff)
+      const offsetDiff = Math.abs(city.offset - matchTime)
       return offsetDiff <= 2
     })
   }
@@ -45,6 +75,7 @@ export default function CitySelectPage() {
   }
 
   const matchedCities = matchCities()
+  const matchTime = calculateMatchTime()
 
   return (
     <View className="city-select-page min-h-screen bg-slate-950 px-6 py-4">
@@ -52,17 +83,32 @@ export default function CitySelectPage() {
       <View className="mb-6">
         <Text className="text-white text-3xl font-bold block">找到同路人</Text>
         <Text className="text-slate-400 text-base mt-2 block">
-          根据你的作息时差，为你匹配了以下城市
+          根据你的实时作息，为你匹配了以下城市
         </Text>
       </View>
 
-      {/* 时差显示 */}
-      <View className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-5 mb-6">
-        <Text className="text-white text-base block">你的时差</Text>
-        <Text className="text-white text-4xl font-bold mt-2 block">
-          {calculateTimeDiff(actualSleepTime, idealSleepTime) > 0 ? '+' : ''}
-          {calculateTimeDiff(actualSleepTime, idealSleepTime).toFixed(1)} 小时
-        </Text>
+      {/* 时间计算说明 */}
+      <View className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 mb-6">
+        <Text className="text-white text-base font-semibold block">计算过程</Text>
+        <View className="mt-3 space-y-2">
+          <Text className="text-slate-300 text-sm block">
+            当前时间：{currentTime}
+          </Text>
+          <Text className="text-slate-300 text-sm block">
+            实际睡眠时间：{actualSleepTime}
+          </Text>
+          <Text className="text-slate-300 text-sm block">
+            理想睡眠时间：{idealSleepTime}
+          </Text>
+          <View className="border-t border-slate-700 pt-2 mt-2">
+            <Text className="text-indigo-400 text-sm block">
+              匹配时间 = 理想睡眠时间 - (实际睡眠时间 - 当前时间)
+            </Text>
+            <Text className="text-white text-xl font-bold mt-2 block">
+              {matchTime > 0 ? '+' : ''}{matchTime.toFixed(1)} 小时
+            </Text>
+          </View>
+        </View>
       </View>
 
       {/* 城市列表 */}
