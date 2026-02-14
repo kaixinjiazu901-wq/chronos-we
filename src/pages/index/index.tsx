@@ -1,13 +1,10 @@
-import { View, Text, Picker, Button } from '@tarojs/components'
-import Taro, { useLoad, useShareAppMessage } from '@tarojs/taro'
+import { View, Text, Picker } from '@tarojs/components'
+import Taro, { useLoad } from '@tarojs/taro'
 import { useChronosStore } from '@/stores/chronos'
 import './index.css'
 
 export default function IndexPage() {
   const { actualSleepTime, idealSleepTime, setActualSleepTime, setIdealSleepTime, setSelectedCity } = useChronosStore()
-
-  // 检测运行环境
-  const isWeapp = Taro.getEnv() === Taro.ENV_TYPE.WEAPP
 
   // 页面加载时检查是否有保存的城市
   useLoad(() => {
@@ -24,29 +21,6 @@ export default function IndexPage() {
       Taro.redirectTo({ url: '/pages/city-showcase/index' })
     }
   })
-
-  // 分享到好友（仅小程序端）
-  useShareAppMessage(() => {
-    return {
-      title: 'Chronos - 精神时区切换工具',
-      path: '/pages/index/index',
-      imageUrl: '' // 可选：自定义分享图片
-    }
-  })
-
-  // H5 端复制链接分享
-  const handleShareH5 = () => {
-    const shareUrl = 'http://9.97.62.166:8888/chronos.html'
-    Taro.setClipboardData({
-      data: shareUrl,
-      success: () => {
-        Taro.showToast({
-          title: '链接已复制，分享给朋友吧',
-          icon: 'none'
-        })
-      }
-    })
-  }
 
   // 生成时间选项（00:00 - 23:45，每15分钟一个选项）
   const generateTimeOptions = (): string[] => {
@@ -163,7 +137,7 @@ export default function IndexPage() {
       </View>
 
       {/* 开始按钮 */}
-      <View className="mt-4">
+      <View className="mt-8">
         <View
           className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl px-8 py-4 text-center active:opacity-80"
           onClick={handleStartJourney}
@@ -172,27 +146,8 @@ export default function IndexPage() {
         </View>
       </View>
 
-      {/* 分享按钮 */}
-      <View className="mt-3">
-        {isWeapp ? (
-          <Button
-            openType="share"
-            className="bg-slate-800/80 rounded-2xl text-slate-400 text-sm py-3 px-4"
-          >
-            <Text className="text-slate-400 text-sm">🎁 分享给朋友</Text>
-          </Button>
-        ) : (
-          <View
-            className="bg-slate-800/80 rounded-2xl text-slate-400 text-sm py-3 px-4 text-center"
-            onClick={handleShareH5}
-          >
-            <Text className="text-slate-400 text-sm">🎁 复制链接分享</Text>
-          </View>
-        )}
-      </View>
-
       {/* 底部提示 */}
-      <View className="mt-4 text-center">
+      <View className="mt-6 text-center">
         <Text className="text-slate-500 text-xs block">
           找到同路人，减少压力
         </Text>

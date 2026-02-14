@@ -1,45 +1,12 @@
-import { View, Text, Image, Button } from '@tarojs/components'
+import { View, Text, Image } from '@tarojs/components'
 import { useState, useEffect } from 'react'
-import Taro, { useShareAppMessage } from '@tarojs/taro'
+import Taro from '@tarojs/taro'
 import { useChronosStore } from '@/stores/chronos'
 import './index.css'
 
 export default function CityShowcasePage() {
   const { selectedCity } = useChronosStore()
   const [localTime, setLocalTime] = useState<string>('')
-
-  // 检测运行环境
-  const isWeapp = Taro.getEnv() === Taro.ENV_TYPE.WEAPP
-
-  // 分享到好友（展示精神身份）- 仅小程序端
-  useShareAppMessage(() => {
-    if (!selectedCity) {
-      return {
-        title: 'Chronos - 精神时区切换工具',
-        path: '/pages/index/index'
-      }
-    }
-
-    return {
-      title: `我是精神${selectedCity.name}人，你属于哪个时区？`,
-      path: '/pages/index/index',
-      imageUrl: '' // 可选：自定义分享图片
-    }
-  })
-
-  // H5 端复制链接分享
-  const handleShareH5 = () => {
-    const shareUrl = `http://9.97.62.166:8888/chronos.html?city=${selectedCity?.name || ''}`
-    Taro.setClipboardData({
-      data: shareUrl,
-      success: () => {
-        Taro.showToast({
-          title: '链接已复制，分享给朋友吧',
-          icon: 'none'
-        })
-      }
-    })
-  }
 
   // 计算当地时间
   const calculateLocalTime = (beijingTime: string, offset: number): string => {
@@ -158,27 +125,8 @@ export default function CityShowcasePage() {
         <Text className="text-slate-300 text-sm mt-2 block">{selectedCity.recommendation}</Text>
       </View>
 
-      {/* 分享按钮 */}
-      <View className="mt-6">
-        {isWeapp ? (
-          <Button
-            openType="share"
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl text-white py-4 px-6"
-          >
-            <Text className="text-white font-medium text-base">🎁 分享我的精神身份</Text>
-          </Button>
-        ) : (
-          <View
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl text-white py-4 px-6 text-center"
-            onClick={handleShareH5}
-          >
-            <Text className="text-white font-medium text-base">🎁 复制链接分享</Text>
-          </View>
-        )}
-      </View>
-
       {/* 重新开始按钮 */}
-      <View className="mt-3">
+      <View className="mt-8">
         <View
           className="bg-slate-800/80 border border-slate-700 rounded-2xl px-6 py-4 text-center"
           onClick={() => {
