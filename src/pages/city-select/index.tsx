@@ -78,7 +78,10 @@ export default function CitySelectPage() {
 
     return CITIES_DATA.filter(city => {
       const offsetDiff = Math.abs(city.offset - targetOffset)
-      return offsetDiff <= 10 / 60  // 10 分钟以内
+      return offsetDiff <= 1  // 误差控制在 1 小时以内
+    }).sort((a, b) => {
+      // 按时差从小到大排序
+      return Math.abs(a.offset - targetOffset) - Math.abs(b.offset - targetOffset)
     })
   }
 

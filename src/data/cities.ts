@@ -110,5 +110,82 @@ export const CITIES_DATA: City[] = [
     recommendation: '花园城市，夜晚也生机勃勃',
     poeticLine: '新加坡的夜晚不眠，就像你心中那份永不停歇的热爱。',
     weatherIcon: '🌙'
+  },
+  {
+    id: 'bangkok',
+    name: '曼谷',
+    englishName: 'Bangkok',
+    timezone: 'UTC+7',
+    offset: 7,
+    imageUrl: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800',
+    recommendation: '天使之城，夜市灯火通明',
+    poeticLine: '曼谷的夜市里，烟火与星光交织，照亮你前行的路。',
+    weatherIcon: '🌙'
+  },
+  {
+    id: 'dhaka',
+    name: '达卡',
+    englishName: 'Dhaka',
+    timezone: 'UTC+6',
+    offset: 6,
+    imageUrl: 'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?w=800',
+    recommendation: '南亚门户，夜晚别有风情',
+    poeticLine: '达卡的夜色中，古老的文明与现代生活交织。',
+    weatherIcon: '🌙'
+  },
+  {
+    id: 'islamabad',
+    name: '伊斯兰堡',
+    englishName: 'Islamabad',
+    timezone: 'UTC+5',
+    offset: 5,
+    imageUrl: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800',
+    recommendation: '山地之都，夜空纯净如洗',
+    poeticLine: '伊斯兰堡的群山下，星空为你点亮希望的灯塔。',
+    weatherIcon: '🌙'
+  },
+  {
+    id: 'delhi',
+    name: '德里',
+    englishName: 'Delhi',
+    timezone: 'UTC+5.5',
+    offset: 5.5,
+    imageUrl: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800',
+    recommendation: '古老首都，夜色中历史流淌',
+    poeticLine: '德里的月光下，千年的历史与你的梦想共鸣。',
+    weatherIcon: '🌙'
+  },
+  {
+    id: 'cairo',
+    name: '开罗',
+    englishName: 'Cairo',
+    timezone: 'UTC+2',
+    offset: 2,
+    imageUrl: 'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=800',
+    recommendation: '尼罗河畔，金字塔的夜',
+    poeticLine: '开罗的金字塔在月光下沉默，见证你坚持的每一个深夜。',
+    weatherIcon: '🌙'
+  },
+  {
+    id: 'athens',
+    name: '雅典',
+    englishName: 'Athens',
+    timezone: 'UTC+2',
+    offset: 2,
+    imageUrl: 'https://images.unsplash.com/photo-1555993539-1732b0258235?w=800',
+    recommendation: '文明摇篮，夜晚思绪飞扬',
+    poeticLine: '雅典的夜空中，古老的智慧与你同在。',
+    weatherIcon: '🌙'
+  },
+  {
+    id: 'dublin',
+    name: '都柏林',
+    englishName: 'Dublin',
+    timezone: 'UTC+0',
+    offset: 0,
+    imageUrl: 'https://images.unsplash.com/photo-1598176377627-f8eb862a17f6?w=800',
+    recommendation: '翡翠岛国，夜晚诗意盎然',
+    poeticLine: '都柏林的夜风里，有诗人为你吟唱不眠的歌。',
+    weatherIcon: '🌙'
   }
 ]
