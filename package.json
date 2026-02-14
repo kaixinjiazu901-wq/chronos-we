@@ -1,8 +1,8 @@
 {
-  "name": "coze-mini-program",
+  "name": "chronos",
   "version": "1.0.0",
   "private": true,
-  "description": "Coze Mini Program Application",
+  "description": "Chronos - 精神时区切换工具",
   "scripts": {
     "build": "pnpm exec concurrently -n lint,tsc,web,weapp,server -c red,blue,green,yellow,magenta \"pnpm lint:build\" \"pnpm tsc\" \"pnpm build:web\" \"pnpm build:weapp\" \"pnpm build:server\"",
     "build:server": "pnpm --filter server build",
