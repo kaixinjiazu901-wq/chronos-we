@@ -41,26 +41,49 @@ export default function CitySelectPage() {
     return diff
   }
 
-  // 计算匹配同路人的时间（新公式：理想睡眠时间 - (实际睡眠时间 - 当前时间)）
-  const calculateMatchTime = (): number => {
-    if (!actualSleepTime || !idealSleepTime || !currentTime) return 0
+  // 计算匹配时间：城市当前时间应该等于"理想睡眠时间 - (实际睡眠时间 - 当前时间)"
+  const calculateMatchTime = (): string => {
+    if (!actualSleepTime || !idealSleepTime || !currentTime) return '--:--'
 
     // 计算距离实际睡眠时间还有多久
     const diffToActual = calculateTimeDiff(currentTime, actualSleepTime)
 
-    // 计算匹配同路人的时间
-    const matchTime = calculateTimeDiff(actualSleepTime, idealSleepTime) + diffToActual
+    // 计算匹配时间（相对于北京时间的偏移）
+    const offsetFromBeijing = calculateTimeDiff(actualSleepTime, idealSleepTime) + diffToActual
 
-    return matchTime
+    // 计算目标时间（北京时间 + 偏移）
+    const now = new Date()
+    const totalMinutes = now.getHours() * 60 + now.getMinutes()
+    const targetMinutes = (totalMinutes + offsetFromBeijing * 60 + 24 * 60) % (24 * 60)
+
+    const targetHour = Math.floor(targetMinutes / 60)
+    const targetMinute = targetMinutes % 60
+
+    return `${String(targetHour).padStart(2, '0')}:${String(targetMinute).padStart(2, '0')}`
   }
 
-  // 匹配城市（根据计算出的匹配时间）
+  // 匹配城市（筛选当前时间等于目标时间的城市）
   const matchCities = (): City[] => {
-    const matchTime = calculateMatchTime()
+    const targetTime = calculateMatchTime()
+    if (targetTime === '--:--') return []
+
+    // 计算当前北京时间
+    const now = new Date()
+    const currentBeijingMinutes = now.getHours() * 60 + now.getMinutes()
+
+    // 解析目标时间
+    const [targetHour, targetMinute] = targetTime.split(':').map(Number)
+    const targetMinutes = targetHour * 60 + targetMinute
+
+    // 找到时区偏移量
+    const offsetMinutes = targetMinutes - currentBeijingMinutes
+    let offsetHours = offsetMinutes / 60
+    if (offsetHours > 12) offsetHours -= 24
+    if (offsetHours < -12) offsetHours += 24
 
     // 找到时差接近的城市（误差在 2 小时内）
     return CITIES_DATA.filter(city => {
-      const offsetDiff = Math.abs(city.offset - matchTime)
+      const offsetDiff = Math.abs(city.offset - offsetHours)
       return offsetDiff <= 2
     })
   }
@@ -81,9 +104,9 @@ export default function CitySelectPage() {
     <View className="city-select-page min-h-screen bg-slate-950 px-6 py-4">
       {/* 标题区 */}
       <View className="mb-6">
-        <Text className="text-white text-3xl font-bold block">找到同路人</Text>
+        <Text className="text-white text-3xl font-bold block">找到精神时区</Text>
         <Text className="text-slate-400 text-base mt-2 block">
-          根据你的实时作息，为你匹配了以下城市
+          筛选出当地时间为以下时间的城市
         </Text>
       </View>
 
@@ -102,10 +125,10 @@ export default function CitySelectPage() {
           </Text>
           <View className="border-t border-slate-700 pt-2 mt-2">
             <Text className="text-indigo-400 text-sm block">
-              匹配时间 = 理想睡眠时间 - (实际睡眠时间 - 当前时间)
+              当地城市时间 = 理想睡眠时间 - (实际睡眠时间 - 当前时间)
             </Text>
             <Text className="text-white text-xl font-bold mt-2 block">
-              {matchTime > 0 ? '+' : ''}{matchTime.toFixed(1)} 小时
+              {matchTime}
             </Text>
           </View>
         </View>
