@@ -123,7 +123,7 @@ export default function IndexPage() {
 
       {/* 欢迎文案 */}
       <View className="bg-gradient-to-br from-indigo-900/30 to-purple-900/30 backdrop-blur-sm border border-indigo-500/20 rounded-2xl p-5 mb-8">
-        <Text className="text-white text-lg font-semibold mb-2 block">你好，同空间的朋友</Text>
+        <Text className="text-white text-lg font-semibold mb-2 block">🌙 晚安了，熬夜的人</Text>
         <Text className="text-slate-300 text-sm leading-relaxed block">
           告别作息焦虑，找到你的精神时区。在这里，你的作息是合理的，因为你属于另一个时区。
         </Text>
