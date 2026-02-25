@@ -134,7 +134,7 @@ export default function IndexPage() {
         {/* 实际睡眠时间 */}
         <View>
           <Text className="text-white text-base font-semibold mb-3 block">
-            1. 您通常在什么时候睡？
+            1. 你通常在什么时候睡？
           </Text>
           <Picker
             mode="multiSelector"
