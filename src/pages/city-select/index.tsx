@@ -2,31 +2,14 @@ import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useChronosStore, type City } from '@/stores/chronos'
 import { CITIES_DATA } from '@/data/cities'
-import { useState, useEffect } from 'react'
 import './index.css'
 
 export default function CitySelectPage() {
   const { actualSleepTime, idealSleepTime, setSelectedCity } = useChronosStore()
-  const [currentTime, setCurrentTime] = useState<string>('')
 
-  // 获取当前时间
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date()
-      const hours = String(now.getHours()).padStart(2, '0')
-      const minutes = String(now.getMinutes()).padStart(2, '0')
-      setCurrentTime(`${hours}:${minutes}`)
-    }
-
-    updateTime()
-    const interval = setInterval(updateTime, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  // 计算匹配时间：目标时间 = 理想睡眠时间 - (当前时间到实际睡眠时间的时长)
+  // 计算匹配时间：目标时间 = 理想睡眠时间 - (实际睡眠时间 - 当前时间)
   const calculateMatchTime = (): string => {
-    if (!actualSleepTime || !idealSleepTime || !currentTime) return '--:--'
+    if (!actualSleepTime || !idealSleepTime) return '--:--'
 
     const now = new Date()
     const currentMinutes = now.getHours() * 60 + now.getMinutes()
@@ -34,55 +17,97 @@ export default function CitySelectPage() {
     const [idealH, idealM] = idealSleepTime.split(':').map(Number)
     const [actualH, actualM] = actualSleepTime.split(':').map(Number)
 
-    const idealMinutes = idealH * 60 + idealM
-    const actualMinutes = actualH * 60 + actualM
+    const idealTotalMinutes = idealH * 60 + idealM
+    const actualTotalMinutes = actualH * 60 + actualM
 
-    // 计算从当前时间到实际睡眠时间的时长（考虑跨日期）
-    let durationToActualSleep = actualMinutes - currentMinutes
-    if (durationToActualSleep <= 0) {
-      durationToActualSleep += 24 * 60 // 跨越午夜，加24小时
+    // 1. 计算当前时间距离实际睡眠时间还有多久
+    // 如果实际睡眠时间小于当前时间（说明跨天了），需要加24小时
+    let diffMinutes = actualTotalMinutes - currentMinutes
+    if (diffMinutes < 0) {
+      diffMinutes += 24 * 60
     }
-
-    // 目标时间 = 理想睡眠时间 - 时长
-    let targetMinutes = idealMinutes - durationToActualSleep
-    if (targetMinutes < 0) {
-      targetMinutes += 24 * 60 // 跨越午夜，加24小时
+    
+    // 2. 用理想睡眠时间减去这个差值，得到目标时间
+    let targetTotalMinutes = idealTotalMinutes - diffMinutes
+    
+    // 处理跨天情况（可能是负数）
+    while (targetTotalMinutes < 0) {
+      targetTotalMinutes += 24 * 60
     }
+    targetTotalMinutes = targetTotalMinutes % (24 * 60)
 
-    const targetHour = Math.floor(targetMinutes / 60)
-    const targetMinute = targetMinutes % 60
+    const targetHour = Math.floor(targetTotalMinutes / 60)
+    const targetMinute = targetTotalMinutes % 60
 
     return `${String(targetHour).padStart(2, '0')}:${String(targetMinute).padStart(2, '0')}`
   }
 
   // 计算目标城市的 UTC 偏移量
   const calculateTargetOffset = (): number => {
-    const targetTime = calculateMatchTime()
-    if (targetTime === '--:--') return 0
+    const targetTimeStr = calculateMatchTime()
+    if (targetTimeStr === '--:--') return 0
 
+    // 获取当前 UTC 时间
     const now = new Date()
-    const utcMinutes = now.getHours() * 60 + now.getMinutes() - 8 * 60
-    const [targetHour, targetMinute] = targetTime.split(':').map(Number)
-    const targetMinutes = targetHour * 60 + targetMinute
-    let offsetHours = (targetMinutes - utcMinutes) / 60
+    const utcHours = now.getUTCHours()
+    const utcMinutes = now.getUTCMinutes()
+    const currentUtcTotalMinutes = utcHours * 60 + utcMinutes
 
-    if (offsetHours > 12) offsetHours -= 24
-    if (offsetHours < -12) offsetHours += 24
+    // 获取目标时间
+    const [targetH, targetM] = targetTimeStr.split(':').map(Number)
+    const targetTotalMinutes = targetH * 60 + targetM
+
+    // 计算偏移量（以小时为单位）
+    // 目标时间 - UTC时间 = 偏移量
+    let offsetMinutes = targetTotalMinutes - currentUtcTotalMinutes
+    
+    // 处理跨天导致的偏移量异常
+    // 偏移量范围通常在 -12 到 +14 之间
+    let offsetHours = offsetMinutes / 60
+
+    // 如果偏移量超过 12 小时，说明可能跨天了，尝试减去 24
+    if (offsetHours > 12) {
+      offsetHours -= 24
+    }
+    // 如果偏移量小于 -12 小时，说明可能跨天了，尝试加上 24
+    else if (offsetHours < -12) {
+      offsetHours += 24
+    }
 
     return offsetHours
   }
 
   // 匹配城市（筛选当地时间为目标时间的城市）
   const matchCities = (): City[] => {
+    // 这里的 offset 是目标时区相对于 UTC 的偏移量
     const targetOffset = calculateTargetOffset()
-
-    return CITIES_DATA.filter(city => {
-      const offsetDiff = Math.abs(city.offset - targetOffset)
-      return offsetDiff <= 1  // 误差控制在 1 小时以内
-    }).sort((a, b) => {
-      // 按时差从小到大排序
-      return Math.abs(a.offset - targetOffset) - Math.abs(b.offset - targetOffset)
+    
+    // 获取所有城市并计算它们与目标偏移量的差距
+    const citiesWithDiff = CITIES_DATA.map(city => {
+      let diff = Math.abs(city.offset - targetOffset)
+      // 处理跨越国际日期变更线的情况（如 -11 和 +13 其实只差 24 小时，是同一个时刻）
+      if (diff > 12) {
+        diff = Math.abs(24 - diff)
+      }
+      return { ...city, diff }
     })
+
+    // 筛选误差在 0.17 小时（约10分钟）以内的城市，并按误差排序
+    // 策略：优先寻找 10 分钟内的完美匹配。如果找不到，则放宽到 45 分钟以确保有结果。
+    const strictMatches = citiesWithDiff
+      .filter(city => city.diff <= 0.17)
+      .sort((a, b) => a.diff - b.diff)
+
+    if (strictMatches.length > 0) {
+      return strictMatches
+    }
+
+    // 降级策略：寻找 45 分钟内的最近城市（标准时区通常间隔1小时，最大偏差为30分钟，0.75足够覆盖）
+    return citiesWithDiff
+      .filter(city => city.diff <= 0.75)
+      .sort((a, b) => a.diff - b.diff)
+      // 如果是降级匹配，只推荐最接近的前 5 个，避免推荐偏差太大的
+      .slice(0, 5)
   }
 
   const handleCitySelect = (city: City) => {

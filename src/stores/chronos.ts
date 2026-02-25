@@ -33,5 +33,6 @@ export const useChronosStore = create<ChronosState>((set) => ({
   setActualSleepTime: (time) => set({ actualSleepTime: time }),
   setIdealSleepTime: (time) => set({ idealSleepTime: time }),
   setSelectedCity: (city) => set({ selectedCity: city }),
-  reset: () => set({ actualSleepTime: '', idealSleepTime: '', selectedCity: null }),
+  // reset 仅重置选中城市，保留睡眠时间设置
+  reset: () => set({ selectedCity: null }),
 }))

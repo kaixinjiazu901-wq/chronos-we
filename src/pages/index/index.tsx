@@ -7,72 +7,93 @@ import './index.css'
 export default function IndexPage() {
   const { actualSleepTime, idealSleepTime, setActualSleepTime, setIdealSleepTime, setSelectedCity } = useChronosStore()
 
-  // 实际睡眠时间的选择值（默认定位到中间组）
-  const [actualHourIndex, setActualHourIndex] = useState(2 + 24)  // 中间组的 02:00
-  const [actualMinuteIndex, setActualMinuteIndex] = useState(0)
-
-  // 理想睡眠时间的选择值
-  const [idealHourIndex, setIdealHourIndex] = useState(23 + 24)  // 中间组的 23:00
-  const [idealMinuteIndex, setIdealMinuteIndex] = useState(0)
-
-  // 小时选项（0-23，重复3组以实现循环滚动效果）
-  const hourOptions = Array.from({ length: 3 }, () =>
+  // 小时选项（0-23，重复50组以实现循环滚动效果）
+  const HOUR_GROUP_COUNT = 50
+  const HOUR_CENTER_GROUP = Math.floor(HOUR_GROUP_COUNT / 2)
+  const hourOptions = Array.from({ length: HOUR_GROUP_COUNT }, () =>
     Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
   ).flat()
 
-  // 分钟选项（0-59，每15分钟）
-  const minuteOptions = Array.from({ length: 4 }, (_, i) => String(i * 15).padStart(2, '0'))
+  // 分钟选项（只有00和30，不循环）
+  const minuteOptions = ['00', '30']
 
-  // 将索引转换为时间字符串（取模24，因为小时选项是重复的）
+  // 实际睡眠时间的选择值
+  const [actualHourIndex, setActualHourIndex] = useState(2 + 24 * HOUR_CENTER_GROUP)
+  const [actualMinuteIndex, setActualMinuteIndex] = useState(0) // 默认为00
+
+  // 理想睡眠时间的选择值
+  const [idealHourIndex, setIdealHourIndex] = useState(23 + 24 * HOUR_CENTER_GROUP)
+  const [idealMinuteIndex, setIdealMinuteIndex] = useState(0) // 默认为00
+
+  // 将索引转换为时间字符串
   const formatTime = (hourIndex: number, minuteIndex: number): string => {
-    const hour = hourOptions[hourIndex % 24]
-    return `${hour}:${minuteOptions[minuteIndex]}`
+    const hour = String(hourIndex % 24).padStart(2, '0')
+    const minute = minuteIndex === 0 ? '00' : '30'
+    return `${hour}:${minute}`
   }
 
   // 实际睡眠时间选择器
   const handleActualTimeChange = (e: any) => {
     const [hourIdx, minuteIdx] = e.detail.value
-    setActualHourIndex(hourIdx)
+    
+    // 计算真实的时间索引
+    const realHourIdx = hourIdx % 24
+    
+    // 小时保持无限循环逻辑
+    const centerHourIdx = realHourIdx + 24 * HOUR_CENTER_GROUP
+
+    // 分钟直接使用选中值（0或1）
+    setActualHourIndex(centerHourIdx)
     setActualMinuteIndex(minuteIdx)
-    setActualSleepTime(formatTime(hourIdx, minuteIdx))
+    setActualSleepTime(formatTime(realHourIdx, minuteIdx))
   }
 
   // 理想睡眠时间选择器
   const handleIdealTimeChange = (e: any) => {
     const [hourIdx, minuteIdx] = e.detail.value
-    setIdealHourIndex(hourIdx)
+
+    // 计算真实的时间索引
+    const realHourIdx = hourIdx % 24
+    
+    // 小时保持无限循环逻辑
+    const centerHourIdx = realHourIdx + 24 * HOUR_CENTER_GROUP
+
+    // 分钟直接使用选中值（0或1）
+    setIdealHourIndex(centerHourIdx)
     setIdealMinuteIndex(minuteIdx)
-    setIdealSleepTime(formatTime(hourIdx, minuteIdx))
+    setIdealSleepTime(formatTime(realHourIdx, minuteIdx))
   }
 
-  // 页面加载时检查是否有保存的城市
+  // 页面加载时恢复上次选择的时间（不自动跳转）
   useLoad(() => {
     const savedCity = Taro.getStorageSync('selectedCity')
     const savedActualTime = Taro.getStorageSync('actualSleepTime')
     const savedIdealTime = Taro.getStorageSync('idealSleepTime')
 
-    if (savedCity && savedActualTime && savedIdealTime) {
-      // 恢复保存的数据
-      setSelectedCity(savedCity)
+    if (savedActualTime) {
+      // 恢复保存的实际睡眠时间
       setActualSleepTime(savedActualTime)
-      setIdealSleepTime(savedIdealTime)
-
-      // 解析保存的时间，设置选择器的索引
+      
       const [actualH, actualM] = savedActualTime.split(':').map(Number)
+      setActualHourIndex(actualH + 24 * HOUR_CENTER_GROUP)
+      // 根据分钟数判断索引：30分对应1，00分对应0
+      setActualMinuteIndex(actualM >= 30 ? 1 : 0)
+    }
+
+    if (savedIdealTime) {
+      // 恢复保存的理想睡眠时间
+      setIdealSleepTime(savedIdealTime)
+      
       const [idealH, idealM] = savedIdealTime.split(':').map(Number)
+      setIdealHourIndex(idealH + 24 * HOUR_CENTER_GROUP)
+      // 根据分钟数判断索引
+      setIdealMinuteIndex(idealM >= 30 ? 1 : 0)
+    }
 
-      // 将小时映射到中间组（索引24-47），实现循环效果
-      setActualHourIndex(actualH + 24)
-      setActualMinuteIndex(Math.floor(actualM / 15))
-      setIdealHourIndex(idealH + 24)
-      setIdealMinuteIndex(Math.floor(idealM / 15))
-
-      // 直接跳转到城市展示页面
-      Taro.redirectTo({ url: '/pages/city-showcase/index' })
-    } else {
-      // 没有保存数据，设置默认值（使用第二组的索引）
-      setActualSleepTime('02:00')
-      setIdealSleepTime('23:00')
+    // 如果有保存的城市，可以在这里处理
+    // 但不自动跳转，让用户可以选择新的时间
+    if (savedCity) {
+      setSelectedCity(savedCity)
     }
   })
 
@@ -102,7 +123,7 @@ export default function IndexPage() {
 
       {/* 欢迎文案 */}
       <View className="bg-gradient-to-br from-indigo-900/30 to-purple-900/30 backdrop-blur-sm border border-indigo-500/20 rounded-2xl p-5 mb-8">
-        <Text className="text-white text-lg font-semibold mb-2 block">🌙 晚安，熬夜的人</Text>
+        <Text className="text-white text-lg font-semibold mb-2 block">你好，同空间的朋友</Text>
         <Text className="text-slate-300 text-sm leading-relaxed block">
           告别作息焦虑，找到你的精神时区。在这里，你的作息是合理的，因为你属于另一个时区。
         </Text>
@@ -113,7 +134,7 @@ export default function IndexPage() {
         {/* 实际睡眠时间 */}
         <View>
           <Text className="text-white text-base font-semibold mb-3 block">
-            1. 你通常在什么时候睡？
+            1. 您通常在什么时候睡？
           </Text>
           <Picker
             mode="multiSelector"
